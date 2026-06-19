@@ -17,12 +17,13 @@ h3{margin-top:20px;}
 <h2> Analysis of Rock Parameters for Equivalent Mohr Coulomb </h2>
 
 <h3>A) Hoek Brown Input Parameters</h3>
-Intact rock compressive strength (σ) <input id="sigci" Value="30">
+Intact rock compressive strength (σ) MPa <input id="sigci" Value="30">
 GSI <input id="GSI" Value="50">
 mi <input id="mi" Value="10">
 Disturbance factor (D) <input id="D" Value="0">
+Modulus of elasticity of an intact rock (Ei) MPa <input id="Ei" Value="12000">
 
-<h3>B) Applicable Scope</h3>
+<h3>B) Applicable Use</h3>
 
 <label for="application">Application:</label>
 <select id="application" onchange="toggleFields()">
@@ -36,7 +37,7 @@ Disturbance factor (D) <input id="D" Value="0">
 
 <!-- Tunnel Inputs -->
 <div id="tunnelFields" style="display:none;">
-    <label>Unit Weight / Density of Material (kN/m³):</label>
+    <label>Unit Weight of Material (kN/m³):</label>
     <input type="number" id="density">
     <br><br>
 
@@ -46,13 +47,17 @@ Disturbance factor (D) <input id="D" Value="0">
 
 <!-- Slope Inputs -->
 <div id="slopeFields" style="display:none;">
+    <label>Unit Weight of Material (kN/m³):</label>
+    <input type="number" id="density">
+    <br><br>
+    
     <label>Slope Height (m):</label>
     <input type="number" id="slopeHeight">
 </div>
 
 <!-- Custom Input -->
 <div id="customFields" style="display:none;">
-    <label>σ3,max Value:</label>
+    <label>σ3,max Value (MPa):</label>
     <input type="number" id="sig3max">
 </div>
 
@@ -77,6 +82,27 @@ function toggleFields() {
 </script>
 
 
+    
+   <button onclick="calculate()">Calculate </button>
+    <div class="results" id="output"></div>
+    </div>
+    <script>
+
+// Helper to log steps to the UI
+let logText = "";
+
+function log(name, value, unit = "") {
+    logText += name + " : " + Number(value).toFixed(3) + " " + unit + "<br>";
+}
+
+logText = "<h3>CALCULATION LOG</h3>";
+  
+function rad(x){return x*Math.PI/180;}
+function deg(x){return x*180/Math.PI;}
+        
+function calculate() {
+logText = "<h3>CALCULATION LOG</h3>";
+try {
 
 
 
