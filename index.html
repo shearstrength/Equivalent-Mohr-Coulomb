@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Drapery & Anchor Design – Full Excel Logic</title>
+<style>
+body{font-family:Arial;background:#f2f4f7;padding:20px;}
+.box{background:white;padding:20px;border-radius:10px;max-width:1100px;margin:auto;}
+input{width:100%;padding:6px;margin-bottom:8px;}
+button{background:#1f4e79;color:white;padding:10px;width:100%;border:none;}
+.results{background:#eef3f9;padding:15px;margin-top:20px;border-radius:8px;}
+h3{margin-top:20px;}
+</style>
+</head>
+<body>
+
+<div class="box">
+<h2> Analysis of Rock Parameters for Equivalent Mohr Coulomb </h2>
+
+<h3>A) Hoek Brown Input Parameters</h3>
+Intact rock compressive strength (σ) <input id="sigci" Value="30">
+GSI <input id="GSI" Value="50">
+mi <input id="mi" Value="10">
+Disturbance factor (D) <input id="D" Value="0">
+
+<h3>B) Applicable Scope</h3>
+
+<label for="application">Application:</label>
+<select id="application" onchange="toggleFields()">
+    <option value="">-- Select --</option>
+    <option value="tunnel">Tunnel</option>
+    <option value="slope">Slope</option>
+    <option value="custom">Custom</option>
+</select>
+
+<br><br>
+
+<!-- Tunnel Inputs -->
+<div id="tunnelFields" style="display:none;">
+    <label>Unit Weight / Density of Material (kN/m³):</label>
+    <input type="number" id="density">
+    <br><br>
+
+    <label>Tunnel Depth (m):</label>
+    <input type="number" id="tunnelDepth">
+</div>
+
+<!-- Slope Inputs -->
+<div id="slopeFields" style="display:none;">
+    <label>Slope Height (m):</label>
+    <input type="number" id="slopeHeight">
+</div>
+
+<!-- Custom Input -->
+<div id="customFields" style="display:none;">
+    <label>σ3,max Value:</label>
+    <input type="number" id="sig3max">
+</div>
+
+<script>
+function toggleFields() {
+    let app = document.getElementById("application").value;
+
+    document.getElementById("tunnelFields").style.display = "none";
+    document.getElementById("slopeFields").style.display = "none";
+    document.getElementById("customFields").style.display = "none";
+
+    if (app === "tunnel") {
+        document.getElementById("tunnelFields").style.display = "block";
+    }
+    else if (app === "slope") {
+        document.getElementById("slopeFields").style.display = "block";
+    }
+    else if (app === "custom") {
+        document.getElementById("customFields").style.display = "block";
+    }
+}
+</script>
+
+
+
+
+
+
+
+
+
+  
