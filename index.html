@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -5,7 +6,7 @@
 
 <style>
 body{
-    font-family:Aptos;
+    font-family:Aptos, Arial, sans-serif;
     background:#f2f4f7;
     padding:20px;
 }
@@ -16,22 +17,29 @@ body{
     border-radius:10px;
     max-width:1100px;
     margin:auto;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
 }
 
 input,select{
     width:100%;
-    padding:6px;
-    margin-bottom:8px;
+    padding:8px;
+    margin-bottom:10px;
+    box-sizing:border-box;
 }
 
 button{
     background:#1f4e79;
     color:white;
-    padding:10px;
+    padding:12px;
     width:100%;
     border:none;
     border-radius:5px;
     cursor:pointer;
+    font-size:16px;
+}
+
+button:hover{
+    background:#163857;
 }
 
 .results{
@@ -51,23 +59,23 @@ h3{
 
 <div class="box">
 
-<h2>Hoek-Brown Parameters To Equivalent Mohr-Coulomb Fit </h2>
+<h2>Hoek-Brown Parameters to Equivalent Mohr-Coulomb Fit</h2>
 
 <h3>A) Hoek-Brown Input Parameters</h3>
 
-Intact Rock Compressive Strength σci (MPa)
+<label>Intact Rock Compressive Strength σci (MPa)</label>
 <input type="number" id="sigci" value="30">
 
-GSI
+<label>GSI</label>
 <input type="number" id="GSI" value="50">
 
-mi
+<label>mi</label>
 <input type="number" id="mi" value="10">
 
-Disturbance Factor D
+<label>Disturbance Factor D</label>
 <input type="number" id="D" value="0">
 
-Modulus of Elasticity of Intact Rock Ei (MPa)
+<label>Modulus of Elasticity of Intact Rock Ei (MPa)</label>
 <input type="number" id="Ei" value="12000">
 
 <h3>B) Applicable Use</h3>
@@ -81,29 +89,29 @@ Modulus of Elasticity of Intact Rock Ei (MPa)
     <option value="custom">Custom</option>
 </select>
 
-<div id="tunnelFields" style="display:none;">
+<div id="tunnelFields" style="display:none">
 
-    Unit Weight γ (kN/m³)
+    <label>Unit Weight γ (kN/m³)</label>
     <input type="number" id="densityTunnel">
 
-    Tunnel Depth H (m)
+    <label>Tunnel Depth H (m)</label>
     <input type="number" id="tunnelDepth">
 
 </div>
 
-<div id="slopeFields" style="display:none;">
+<div id="slopeFields" style="display:none">
 
-    Unit Weight γ (kN/m³)
+    <label>Unit Weight γ (kN/m³)</label>
     <input type="number" id="densitySlope">
 
-    Slope Height H (m)
+    <label>Slope Height H (m)</label>
     <input type="number" id="slopeHeight">
 
 </div>
 
-<div id="customFields" style="display:none;">
+<div id="customFields" style="display:none">
 
-    σ3max (MPa)
+    <label>σ3max (MPa)</label>
     <input type="number" id="sig3max">
 
 </div>
@@ -116,218 +124,242 @@ Modulus of Elasticity of Intact Rock Ei (MPa)
 
 <script>
 
-function toggleFields()
-{
+function toggleFields(){
+
     let app = document.getElementById("application").value;
 
-    document.getElementById("tunnelFields").style.display="none";
-    document.getElementById("slopeFields").style.display="none";
-    document.getElementById("customFields").style.display="none";
+    document.getElementById("tunnelFields").style.display = "none";
+    document.getElementById("slopeFields").style.display = "none";
+    document.getElementById("customFields").style.display = "none";
 
-    if(app==="tunnel")
-        document.getElementById("tunnelFields").style.display="block";
+    if(app === "tunnel"){
+        document.getElementById("tunnelFields").style.display = "block";
+    }
 
-    if(app==="slope")
-        document.getElementById("slopeFields").style.display="block";
+    if(app === "slope"){
+        document.getElementById("slopeFields").style.display = "block";
+    }
 
-    if(app==="custom")
-        document.getElementById("customFields").style.display="block";
+    if(app === "custom"){
+        document.getElementById("customFields").style.display = "block";
+    }
 }
 
-function deg(x)
-{
-    return x*180/Math.PI;
+function deg(x){
+    return x * 180 / Math.PI;
 }
 
-let logText="";
+let logText = "";
 
-function log(name,value,unit="")
-{
+function log(name,value,unit=""){
     logText += name + " = " +
     Number(value).toFixed(4) +
     " " + unit + "<br>";
 }
 
-function calculate()
-{
-try
-{
-    logText="<h3>Calculation Log</h3>";
+function calculate(){
 
-    let sigci =
-    parseFloat(document.getElementById("sigci").value);
+try{
 
-    let GSI =
-    parseFloat(document.getElementById("GSI").value);
+    logText = "<h3>Calculation Log</h3>";
 
-    let mi =
-    parseFloat(document.getElementById("mi").value);
+    let sigci = parseFloat(document.getElementById("sigci").value);
+    let GSI = parseFloat(document.getElementById("GSI").value);
+    let mi = parseFloat(document.getElementById("mi").value);
+    let D = parseFloat(document.getElementById("D").value);
+    let Ei = parseFloat(document.getElementById("Ei").value);
 
-    let D =
-    parseFloat(document.getElementById("D").value);
+    let app = document.getElementById("application").value;
 
-    let Ei =
-    parseFloat(document.getElementById("Ei").value);
+    /* Hoek-Brown Constants */
 
-    let app =
-    document.getElementById("application").value;
+    let mb = mi * Math.exp((GSI - 100) / (28 - 14 * D));
 
-/* --------------------------
-   Hoek-Brown Constants
--------------------------- */
+    let s = Math.exp((GSI - 100) / (9 - 3 * D));
 
-let mb =mi *Math.exp((GSI-100)/(28-(14*D)))
-);
+    let a = 0.5 +
+            (1/6) *
+            (Math.exp(-GSI/15) - Math.exp(-20/3));
 
-let s =Math.exp((GSI-100)/(9-(3*D))
-);
+    log("mb",mb);
+    log("s",s);
+    log("a",a);
 
-let a = [0.5 +((1/6)*(Math.exp(-GSI/15) -Math.exp(-20/3)))]
-);
+    /* Rock Mass Strength */
 
-log("mb",mb);
-log("s",s);
-log("a",a);
-
-
-/* --------------------------
-   Rock Mass Strength
--------------------------- */
-
-let sigcm =sigci *[((mb + 4*s - a*(mb - 8*s))*Math.pow((mb/4 + s),(a-1)))/(2*(1+a)*(2+a))]
-);
-
-/* --------------------------
-   Sigma3 max
--------------------------- */
-
-let sig3max;
-
-if(app==="tunnel"){
-
-    let gamma =
-    parseFloat(
-    document.getElementById("densityTunnel").value
+    let sigcm =
+    sigci *
+    (
+        (
+            (mb + 4*s - a*(mb - 8*s))
+            *
+            Math.pow((mb/4 + s),(a-1))
+        )
+        /
+        (2*(1+a)*(2+a))
     );
 
-    let H =
-    parseFloat(
-    document.getElementById("tunnelDepth").value
+    log("σcm",sigcm,"MPa");
+
+    /* Sigma3 max */
+
+    let sig3max;
+
+    if(app === "tunnel"){
+
+        let gamma =
+        parseFloat(document.getElementById("densityTunnel").value);
+
+        let H =
+        parseFloat(document.getElementById("tunnelDepth").value);
+
+        let stress = gamma * H / 1000;
+
+        sig3max =
+        sigcm *
+        (
+            0.47 *
+            Math.pow(sigcm / stress,-0.94)
+        );
+
+        log("Tunnel Depth",H,"m");
+        log("Unit Weight",gamma,"kN/m³");
+
+    }
+
+    else if(app === "slope"){
+
+        let gamma =
+        parseFloat(document.getElementById("densitySlope").value);
+
+        let H =
+        parseFloat(document.getElementById("slopeHeight").value);
+
+        let stress = gamma * H / 1000;
+
+        sig3max =
+        sigcm *
+        (
+            0.72 *
+            Math.pow(sigcm / stress,-0.91)
+        );
+
+        log("Slope Height",H,"m");
+        log("Unit Weight",gamma,"kN/m³");
+
+    }
+
+    else if(app === "custom"){
+
+        sig3max =
+        parseFloat(document.getElementById("sig3max").value);
+
+    }
+
+    else{
+
+        alert("Please select Application");
+        return;
+    }
+
+    log("σ3,max",sig3max,"MPa");
+
+    /* Normalized Confinement */
+
+    let sig3n = sig3max / sigci;
+
+    /* Friction Angle */
+
+    let temp1 =
+    6 * a * mb *
+    Math.pow(s + mb * sig3n,a - 1);
+
+    let phi =
+    deg(
+        Math.asin(
+            temp1 /
+            (
+                2*(1+a)*(2+a) + temp1
+            )
+        )
     );
 
-    let stress =
-    gamma*H/1000;
+    /* Cohesion */
 
-    sig3max =    sigcm *    [(    0.47 *    Math.pow(    sigcm/stress,    -0.94    )]
+    let cohesion =
+    (
+        sigci *
+        (
+            (1 + 2*a)*s +
+            (1 - a)*mb*sig3n
+        )
+        *
+        Math.pow(s + mb*sig3n,a - 1)
+    )
+    /
+    (
+        (1+a)*(2+a)
+        *
+        Math.sqrt
+        (
+            1 +
+            (
+                temp1 /
+                (
+                    (1+a)*(2+a)
+                )
+            )
+        )
     );
 
-    log("Tunnel Depth",H,"m");
-    log("Unit Weight",gamma,"kN/m³");
+    /* Rock Mass Modulus */
+
+    let Erm =
+    Ei *
+    (
+        0.02 +
+        (
+            (1 - D/2)
+            /
+            (
+                1 +
+                Math.exp((60 + 15*D - GSI)/11)
+            )
+        )
+    );
+
+    document.getElementById("output").innerHTML =
+
+    logText +
+
+    "<hr>" +
+
+    "<h3>Equivalent Mohr-Coulomb Parameters</h3>" +
+
+    "<b>c' = </b>" +
+    cohesion.toFixed(3) +
+    " MPa<br><br>" +
+
+    "<b>φ' = </b>" +
+    phi.toFixed(3) +
+    "°<br><br>" +
+
+    "<h3>Rock Mass Parameters</h3>" +
+
+    "<b>Erm = </b>" +
+    Erm.toFixed(3) +
+    " MPa";
+
 }
-
-else if(app==="slope"){
-
-    let gamma =
-    parseFloat(
-    document.getElementById("densitySlope").value
-    );
-
-    let H =
-    parseFloat(
-    document.getElementById("slopeHeight").value
-    );
-
-    let stress =
-    gamma*H/1000;
-
-    sig3max =    sigcm *  [  (    0.72 *    Math.pow(    sigcm/stress,    -0.91    )]
-    );
-
-    log("Slope Height",H,"m");
-    log("Unit Weight",gamma,"kN/m³");
-}
-
-else if(app==="custom"){
-
-    sig3max =
-    parseFloat(
-    document.getElementById("sig3max").value
-    );
-}
-
-else{
-
-    alert("Please select Application");
-    return;
-}
-
-log("σ3,max",sig3max,"MPa");
-
-
-/* --------------------------
-   Normalized Confinement
--------------------------- */
-
-let sig3n = (sig3max/sigci);
-
-/* --------------------------
-   Friction Angle
--------------------------- */
-
-let temp1 =6*a*mb*Math.pow(s + mb*sig3n,a-1);
-
-let phi =deg(Math.asin(temp1/(2*(1+a)*(2+a)+temp1)));
-
-/* --------------------------
-   Cohesion
--------------------------- */
-
-let cohesion =(sigci *((1+2*a)*s +(1-a)*mb*sig3n)*Math.pow(s + mb*sig3n,a-1))/((1+a)*(2+a)*Math.sqrt(1 +(temp1/((1+a)*(2+a)))));
-
-/* --------------------------
-   Rock Mass Modulus
--------------------------- */
-
-let Erm = Ei *(0.02 +((1-(D/2))/(1 +Math.exp((60 + 15*D - GSI)/11))));
-
-/* --------------------------
-   Results
--------------------------- */
-
-document.getElementById("output").innerHTML =
-
-logText +
-
-"<hr>" +
-
-"<h3>Equivalent Mohr-Coulomb Parameters</h3>" +
-
-"<b>c' = </b>" +
-cohesion.toFixed(3) +
-" MPa<br><br>" +
-
-"<b>φ' = </b>" +
-phi.toFixed(3) +
-"°<br><br>" +
-
-"<h3>Rock Mass Parameters</h3>" +
-
-"<b>Erm = </b>" +
-Erm.toFixed(3) +
-" MPa";
-
-}
-
 catch(err){
 
-document.getElementById("output").innerHTML =
-"<b>Error:</b> " + err.message;
-
+    document.getElementById("output").innerHTML =
+    "<b>Error:</b> " + err.message;
 }
 
 }
-
 </script>
 
 </body>
 </html>
+```
