@@ -1,31 +1,79 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
-<title>Drapery & Anchor Design – Full Excel Logic</title>
+<title>Hoek-Brown to Equivalent Mohr-Coulomb</title>
+
 <style>
-body{font-family:Arial;background:#f2f4f7;padding:20px;}
-.box{background:white;padding:20px;border-radius:10px;max-width:1100px;margin:auto;}
-input{width:100%;padding:6px;margin-bottom:8px;}
-button{background:#1f4e79;color:white;padding:10px;width:100%;border:none;}
-.results{background:#eef3f9;padding:15px;margin-top:20px;border-radius:8px;}
-h3{margin-top:20px;}
+body{
+    font-family:Arial;
+    background:#f2f4f7;
+    padding:20px;
+}
+
+.box{
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    max-width:1100px;
+    margin:auto;
+}
+
+input,select{
+    width:100%;
+    padding:6px;
+    margin-bottom:8px;
+}
+
+button{
+    background:#1f4e79;
+    color:white;
+    padding:10px;
+    width:100%;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.results{
+    background:#eef3f9;
+    padding:15px;
+    margin-top:20px;
+    border-radius:8px;
+}
+
+h3{
+    margin-top:20px;
+}
 </style>
 </head>
+
 <body>
 
 <div class="box">
-<h2> Analysis of Rock Parameters for Equivalent Mohr Coulomb </h2>
 
-<h3>A) Hoek Brown Input Parameters</h3>
-Intact rock compressive strength (σ) MPa <input id="sigci" Value="30">
-GSI <input id="GSI" Value="50">
-mi <input id="mi" Value="10">
-Disturbance factor (D) <input id="D" Value="0">
-Modulus of elasticity of an intact rock (Ei) MPa <input id="Ei" Value="12000">
+<h2>Analysis of Rock Parameters for Equivalent Mohr-Coulomb</h2>
+
+<h3>A) Hoek-Brown Input Parameters</h3>
+
+Intact Rock Compressive Strength σci (MPa)
+<input type="number" id="sigci" value="30">
+
+GSI
+<input type="number" id="GSI" value="50">
+
+mi
+<input type="number" id="mi" value="10">
+
+Disturbance Factor D
+<input type="number" id="D" value="0">
+
+Modulus of Elasticity of Intact Rock Ei (MPa)
+<input type="number" id="Ei" value="12000">
 
 <h3>B) Applicable Use</h3>
 
-<label for="application">Application:</label>
+<label>Application</label>
 <select id="application" onchange="toggleFields()">
     <option value="">-- Select --</option>
     <option value="tunnel">Tunnel</option>
@@ -33,81 +81,369 @@ Modulus of elasticity of an intact rock (Ei) MPa <input id="Ei" Value="12000">
     <option value="custom">Custom</option>
 </select>
 
-<br><br>
-
-<!-- Tunnel Inputs -->
 <div id="tunnelFields" style="display:none;">
-    <label>Unit Weight of Material (kN/m³):</label>
-    <input type="number" id="density">
-    <br><br>
 
-    <label>Tunnel Depth (m):</label>
+    Unit Weight γ (kN/m³)
+    <input type="number" id="densityTunnel">
+
+    Tunnel Depth H (m)
     <input type="number" id="tunnelDepth">
+
 </div>
 
-<!-- Slope Inputs -->
 <div id="slopeFields" style="display:none;">
-    <label>Unit Weight of Material (kN/m³):</label>
-    <input type="number" id="density">
-    <br><br>
-    
-    <label>Slope Height (m):</label>
+
+    Unit Weight γ (kN/m³)
+    <input type="number" id="densitySlope">
+
+    Slope Height H (m)
     <input type="number" id="slopeHeight">
+
 </div>
 
-<!-- Custom Input -->
 <div id="customFields" style="display:none;">
-    <label>σ3,max Value (MPa):</label>
+
+    σ3,max (MPa)
     <input type="number" id="sig3max">
+
+</div>
+
+<button onclick="calculate()">Calculate</button>
+
+<div class="results" id="output"></div>
+
 </div>
 
 <script>
-function toggleFields() {
-    let app = document.getElementById("application").value;
 
-    document.getElementById("tunnelFields").style.display = "none";
-    document.getElementById("slopeFields").style.display = "none";
-    document.getElementById("customFields").style.display = "none";
+function rad(x){
+    return x*Math.PI/180;
+}
 
-    if (app === "tunnel") {
-        document.getElementById("tunnelFields").style.display = "block";
+function deg(x){
+    return x*180/Math.PI;
+}
+
+let logText="";
+
+function log(name,value,unit=""){
+    logText +=
+    name + " = " +
+    Number(value).toFixed(4) +
+    " " + unit + "<br>";
+}
+
+function toggleFields(){
+
+    let app =
+    document.getElementById("application").value;
+
+    document.getElementById("tunnelFields").style.display="none";
+    document.getElementById("slopeFields").style.display="none";
+    document.getElementById("customFields").style.display="none";
+
+    if(app==="tunnel"){
+        document.getElementById("tunnelFields").style.display="block";
     }
-    else if (app === "slope") {
-        document.getElementById("slopeFields").style.display = "block";
+
+    if(app==="slope"){
+        document.getElementById("slopeFields").style.display="block";
     }
-    else if (app === "custom") {
-        document.getElementById("customFields").style.display = "block";
+
+    if(app==="custom"){
+        document.getElementById("customFields").style.display="block";
     }
 }
+
+function calculate(){
+
+try{
+
+logText="<h3>Calculation Log</h3>";
+
+let sigci =
+parseFloat(document.getElementById("sigci").value);
+
+let GSI =
+parseFloat(document.getElementById("GSI").value);
+
+let mi =
+parseFloat(document.getElementById("mi").value);
+
+let D =
+parseFloat(document.getElementById("D").value);
+
+let Ei =
+parseFloat(document.getElementById("Ei").value);
+
+let app =
+document.getElementById("application").value;
+
+
+/* --------------------------
+   Hoek-Brown Constants
+-------------------------- */
+
+let mb =
+mi *
+Math.exp(
+(GSI-100)/(28-14*D)
+);
+
+let s =
+Math.exp(
+(GSI-100)/(9-3*D)
+);
+
+let a =
+0.5 +
+(1/6)*
+(
+Math.exp(-GSI/15) -
+Math.exp(-20/3)
+);
+
+log("mb",mb);
+log("s",s);
+log("a",a);
+
+
+/* --------------------------
+   Rock Mass Strength
+-------------------------- */
+
+let sigcm =
+sigci *
+(
+(
+mb + 4*s - a*(mb - 8*s)
+)
+*
+Math.pow(
+(mb/4 + s),
+(a-1)
+)
+)
+/
+(
+2*(1+a)*(2+a)
+);
+
+log("σcm",sigcm,"MPa");
+
+
+/* --------------------------
+   Sigma3 max
+-------------------------- */
+
+let sig3max;
+
+if(app==="tunnel"){
+
+    let gamma =
+    parseFloat(
+    document.getElementById("densityTunnel").value
+    );
+
+    let H =
+    parseFloat(
+    document.getElementById("tunnelDepth").value
+    );
+
+    let stress =
+    gamma*H/1000;
+
+    sig3max =
+    sigcm *
+    (
+    0.47 *
+    Math.pow(
+    sigcm/stress,
+    -0.94
+    )
+    );
+
+    log("Tunnel Depth",H,"m");
+    log("Unit Weight",gamma,"kN/m³");
+}
+
+else if(app==="slope"){
+
+    let gamma =
+    parseFloat(
+    document.getElementById("densitySlope").value
+    );
+
+    let H =
+    parseFloat(
+    document.getElementById("slopeHeight").value
+    );
+
+    let stress =
+    gamma*H/1000;
+
+    sig3max =
+    sigcm *
+    (
+    0.72 *
+    Math.pow(
+    sigcm/stress,
+    -0.91
+    )
+    );
+
+    log("Slope Height",H,"m");
+    log("Unit Weight",gamma,"kN/m³");
+}
+
+else if(app==="custom"){
+
+    sig3max =
+    parseFloat(
+    document.getElementById("sig3max").value
+    );
+}
+
+else{
+
+    alert("Please select Application");
+    return;
+}
+
+log("σ3,max",sig3max,"MPa");
+
+
+/* --------------------------
+   Normalized Confinement
+-------------------------- */
+
+let sig3n =
+sig3max/sigci;
+
+log("σ3n",sig3n);
+
+
+/* --------------------------
+   Friction Angle
+-------------------------- */
+
+let temp1 =
+6*a*mb*
+Math.pow(
+s + mb*sig3n,
+a-1
+);
+
+let phi =
+deg(
+Math.asin(
+temp1/
+(
+2*(1+a)*(2+a)
++
+temp1
+)
+)
+);
+
+log("φ'",phi,"deg");
+
+
+/* --------------------------
+   Cohesion
+-------------------------- */
+
+let cohesion =
+(
+sigci *
+(
+(1+2*a)*s +
+(1-a)*mb*sig3n
+)
+*
+Math.pow(
+s + mb*sig3n,
+a-1
+)
+)
+/
+(
+(1+a)*(2+a)
+*
+Math.sqrt(
+1 +
+(
+temp1/
+(
+(1+a)*(2+a)
+)
+)
+)
+);
+
+log("c'",cohesion,"MPa");
+
+
+/* --------------------------
+   Rock Mass Modulus
+-------------------------- */
+
+let Erm =
+sigci *
+(
+0.02 +
+(
+(1-(D/2))
+/
+(
+1 +
+Math.exp(
+(60 + 15*D - GSI)/11
+)
+)
+)
+);
+
+log("Erm",Erm,"MPa");
+
+
+/* --------------------------
+   Results
+-------------------------- */
+
+document.getElementById("output").innerHTML =
+
+logText +
+
+"<hr>" +
+
+"<h3>Equivalent Mohr-Coulomb Parameters</h3>" +
+
+"<b>c' = </b>" +
+cohesion.toFixed(3) +
+" MPa<br><br>" +
+
+"<b>φ' = </b>" +
+phi.toFixed(3) +
+"°<br><br>" +
+
+"<b>Erm = </b>" +
+Erm.toFixed(3) +
+" MPa";
+
+}
+
+catch(err){
+
+document.getElementById("output").innerHTML =
+"<b>Error:</b> " + err.message;
+
+}
+
+}
+
 </script>
 
-
-    
-   <button onclick="calculate()">Calculate </button>
-    <div class="results" id="output"></div>
-    </div>
-    <script>
-
-// Helper to log steps to the UI
-let logText = "";
-
-function log(name, value, unit = "") {
-    logText += name + " : " + Number(value).toFixed(3) + " " + unit + "<br>";
-}
-
-logText = "<h3>CALCULATION LOG</h3>";
-  
-function rad(x){return x*Math.PI/180;}
-function deg(x){return x*180/Math.PI;}
-        
-function calculate() {
-logText = "<h3>CALCULATION LOG</h3>";
-try {
-
-
-
-
-
-
-
-  
+</body>
+</html>
+```
