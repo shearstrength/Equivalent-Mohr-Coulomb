@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -199,7 +198,7 @@ try{
         (2*(1+a)*(2+a))
     );
 
-    log("σcm",sigcm,"MPa");
+
 
     /* Sigma3 max */
 
@@ -222,9 +221,6 @@ try{
             Math.pow(sigcm / stress,-0.94)
         );
 
-        log("Tunnel Depth",H,"m");
-        log("Unit Weight",gamma,"kN/m³");
-
     }
 
     else if(app === "slope"){
@@ -244,8 +240,7 @@ try{
             Math.pow(sigcm / stress,-0.91)
         );
 
-        log("Slope Height",H,"m");
-        log("Unit Weight",gamma,"kN/m³");
+
 
     }
 
@@ -362,4 +357,3 @@ catch(err){
 
 </body>
 </html>
-```
