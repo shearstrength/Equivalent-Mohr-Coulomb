@@ -73,6 +73,7 @@ Modulus of Elasticity of Intact Rock Ei (MPa)
 <h3>B) Applicable Use</h3>
 
 <label>Application</label>
+
 <select id="application" onchange="toggleFields()">
     <option value="">-- Select --</option>
     <option value="tunnel">Tunnel</option>
@@ -102,7 +103,7 @@ Modulus of Elasticity of Intact Rock Ei (MPa)
 
 <div id="customFields" style="display:none;">
 
-    σ3,max (MPa)
+    σ3max (MPa)
     <input type="number" id="sig3max">
 
 </div>
@@ -115,58 +116,61 @@ Modulus of Elasticity of Intact Rock Ei (MPa)
 
 <script>
 
-function rad(x){
-    return x*Math.PI/180;
-}
+function toggleFields()
+{
+    let app = document.getElementById("application").value;
 
-function deg(x){
-    return x*180/Math.PI;
-}
-
-let logText="";
-function log(name,value,unit=""){
-    logText +=
-    name + " = " +
-    Number(value).toFixed(4) +
-    " " + unit + "<br>";
-}
-
-function toggleFields(){
-    let app =
-    document.getElementById("application").value;
     document.getElementById("tunnelFields").style.display="none";
     document.getElementById("slopeFields").style.display="none";
     document.getElementById("customFields").style.display="none";
 
-    if(app==="tunnel"){
+    if(app==="tunnel")
         document.getElementById("tunnelFields").style.display="block";
-    }
 
-    if(app==="slope"){
+    if(app==="slope")
         document.getElementById("slopeFields").style.display="block";
-    }
 
-    if(app==="custom"){
+    if(app==="custom")
         document.getElementById("customFields").style.display="block";
-    }
 }
 
-function calculate(){
-try{
-logText="<h3>Calculation Log</h3>";
-let sigci =
-parseFloat(document.getElementById("sigci").value);
-let GSI =
-parseFloat(document.getElementById("GSI").value);
-let mi =
-parseFloat(document.getElementById("mi").value);
-let D =
-parseFloat(document.getElementById("D").value);
-let Ei =
-parseFloat(document.getElementById("Ei").value);
-let app =
-document.getElementById("application").value;
+function deg(x)
+{
+    return x*180/Math.PI;
+}
 
+let logText="";
+
+function log(name,value,unit="")
+{
+    logText += name + " = " +
+    Number(value).toFixed(4) +
+    " " + unit + "<br>";
+}
+
+function calculate()
+{
+try
+{
+    logText="<h3>Calculation Log</h3>";
+
+    let sigci =
+    parseFloat(document.getElementById("sigci").value);
+
+    let GSI =
+    parseFloat(document.getElementById("GSI").value);
+
+    let mi =
+    parseFloat(document.getElementById("mi").value);
+
+    let D =
+    parseFloat(document.getElementById("D").value);
+
+    let Ei =
+    parseFloat(document.getElementById("Ei").value);
+
+    let app =
+    document.getElementById("application").value;
 
 /* --------------------------
    Hoek-Brown Constants
@@ -327,4 +331,3 @@ document.getElementById("output").innerHTML =
 
 </body>
 </html>
-```
