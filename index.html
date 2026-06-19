@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,7 +5,7 @@
 
 <style>
 body{
-    font-family:Arial;
+    font-family:Aptos;
     background:#f2f4f7;
     padding:20px;
 }
@@ -52,7 +51,7 @@ h3{
 
 <div class="box">
 
-<h2>Analysis of Rock Parameters for Equivalent Mohr-Coulomb</h2>
+<h2>Hoek-Brown Parameters To Equivalent Mohr-Coulomb Fit </h2>
 
 <h3>A) Hoek-Brown Input Parameters</h3>
 
@@ -125,7 +124,6 @@ function deg(x){
 }
 
 let logText="";
-
 function log(name,value,unit=""){
     logText +=
     name + " = " +
@@ -134,10 +132,8 @@ function log(name,value,unit=""){
 }
 
 function toggleFields(){
-
     let app =
     document.getElementById("application").value;
-
     document.getElementById("tunnelFields").style.display="none";
     document.getElementById("slopeFields").style.display="none";
     document.getElementById("customFields").style.display="none";
@@ -156,26 +152,18 @@ function toggleFields(){
 }
 
 function calculate(){
-
 try{
-
 logText="<h3>Calculation Log</h3>";
-
 let sigci =
 parseFloat(document.getElementById("sigci").value);
-
 let GSI =
 parseFloat(document.getElementById("GSI").value);
-
 let mi =
 parseFloat(document.getElementById("mi").value);
-
 let D =
 parseFloat(document.getElementById("D").value);
-
 let Ei =
 parseFloat(document.getElementById("Ei").value);
-
 let app =
 document.getElementById("application").value;
 
@@ -184,23 +172,13 @@ document.getElementById("application").value;
    Hoek-Brown Constants
 -------------------------- */
 
-let mb =
-mi *
-Math.exp(
-(GSI-100)/(28-14*D)
+let mb =mi *Math.exp((GSI-100)/(28-(14*D)))
 );
 
-let s =
-Math.exp(
-(GSI-100)/(9-3*D)
+let s =Math.exp((GSI-100)/(9-(3*D))
 );
 
-let a =
-0.5 +
-(1/6)*
-(
-Math.exp(-GSI/15) -
-Math.exp(-20/3)
+let a = [0.5 +((1/6)*(Math.exp(-GSI/15) -Math.exp(-20/3)))]
 );
 
 log("mb",mb);
@@ -212,25 +190,8 @@ log("a",a);
    Rock Mass Strength
 -------------------------- */
 
-let sigcm =
-sigci *
-(
-(
-mb + 4*s - a*(mb - 8*s)
-)
-*
-Math.pow(
-(mb/4 + s),
-(a-1)
-)
-)
-/
-(
-2*(1+a)*(2+a)
+let sigcm =sigci *[((mb + 4*s - a*(mb - 8*s))*Math.pow((mb/4 + s),(a-1)))/(2*(1+a)*(2+a))]
 );
-
-
-
 
 /* --------------------------
    Sigma3 max
@@ -253,14 +214,7 @@ if(app==="tunnel"){
     let stress =
     gamma*H/1000;
 
-    sig3max =
-    sigcm *
-    (
-    0.47 *
-    Math.pow(
-    sigcm/stress,
-    -0.94
-    )
+    sig3max =    sigcm *    [(    0.47 *    Math.pow(    sigcm/stress,    -0.94    )]
     );
 
     log("Tunnel Depth",H,"m");
@@ -282,14 +236,7 @@ else if(app==="slope"){
     let stress =
     gamma*H/1000;
 
-    sig3max =
-    sigcm *
-    (
-    0.72 *
-    Math.pow(
-    sigcm/stress,
-    -0.91
-    )
+    sig3max =    sigcm *  [  (    0.72 *    Math.pow(    sigcm/stress,    -0.91    )]
     );
 
     log("Slope Height",H,"m");
@@ -317,72 +264,21 @@ log("σ3,max",sig3max,"MPa");
    Normalized Confinement
 -------------------------- */
 
-let sig3n =
-sig3max/sigci;
-
-
-
+let sig3n = (sig3max/sigci);
 
 /* --------------------------
    Friction Angle
 -------------------------- */
 
-let temp1 =
-6*a*mb*
-Math.pow(
-s + mb*sig3n,
-a-1
-);
+let temp1 =6*a*mb*Math.pow(s + mb*sig3n,a-1);
 
-let phi =
-deg(
-Math.asin(
-temp1/
-(
-2*(1+a)*(2+a)
-+
-temp1
-)
-)
-);
-
-
-
+let phi =deg(Math.asin(temp1/(2*(1+a)*(2+a)+temp1)));
 
 /* --------------------------
    Cohesion
 -------------------------- */
 
-let cohesion =
-(
-sigci *
-(
-(1+2*a)*s +
-(1-a)*mb*sig3n
-)
-*
-Math.pow(
-s + mb*sig3n,
-a-1
-)
-)
-/
-(
-(1+a)*(2+a)
-*
-Math.sqrt(
-1 +
-(
-temp1/
-(
-(1+a)*(2+a)
-)
-)
-)
-);
-
-
-
+let cohesion =(sigci *((1+2*a)*s +(1-a)*mb*sig3n)*Math.pow(s + mb*sig3n,a-1))/((1+a)*(2+a)*Math.sqrt(1 +(temp1/((1+a)*(2+a)))));
 
 /* --------------------------
    Rock Mass Modulus
